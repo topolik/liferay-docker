@@ -1,17 +1,26 @@
-FROM --platform=${TARGETPLATFORM} ubuntu:jammy AS ubuntu-jammy
+FROM --platform=${TARGETPLATFORM} registry.access.redhat.com/ubi8/ubi AS ubi8
 
 COPY resources/etc/created-date /etc/created-date
 
-RUN apt-get update && \
-	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes bash ca-certificates curl jq less libnss3 telnet tini tree unzip && \
-	apt-get upgrade --yes && \
-	apt-get clean
+RUN yum update -y && \
+	yum upgrade -y && \
+	yum install -y --disableplugin=subscription-manager \
+		bash\
+		ca-certificates\
+		curl\
+		jq\
+		less\
+		# not found: libnss3\
+		# not found: telnet\
+		# not found: tini\
+		# not found: tree\
+		unzip &&\
+	yum clean all
 
-RUN adduser --disabled-password --home /home/liferay liferay --uid 1000 && \
-	addgroup liferay liferay && \
-	usermod -g 1000 liferay
 
-FROM ubuntu-jammy
+RUN adduser --home-dir /home/liferay liferay --uid 1000
+
+FROM ubi8
 
 ARG LABEL_BUILD_DATE
 ARG LABEL_NAME

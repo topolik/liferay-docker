@@ -37,11 +37,7 @@ LABEL org.label-schema.zulu11_version="${LABEL_ZULU_11_VERSION}"
 LABEL org.label-schema.zulu11_arm64_version="${LABEL_ZULU_11_ARM64_VERSION}"
 LABEL org.label-schema.zulu11_amd64_version="${LABEL_ZULU_11_AMD64_VERSION}"
 
-RUN apt-get update && \
-	apt-get install --no-install-recommends --yes jattach && \
-	apt-get upgrade --yes && \
-	apt-get clean && \
-	curl -H 'accept: */*' -L -s -X 'GET' -o /tmp/jdk11.deb "https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?arch=${TARGETARCH}&bundle_type=jdk&ext=deb&hw_bitness=64&java_version=11.0&javafx=false&os=linux&zulu_version=${LABEL_ZULU_11_VERSION}" && \
-	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes /tmp/jdk11.deb && \
-	rm /tmp/jdk11.deb && \
+# jattach not found in RHEL ubi images
+RUN yum install -y https://cdn.azul.com/zulu/bin/zulu-repo-1.0.0-1.noarch.rpm && \
+	yum install -y zulu11-jdk && \
 	/usr/local/bin/set_java_version.sh
